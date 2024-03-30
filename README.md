@@ -1,0 +1,2 @@
+# qtile
+My qtile config
