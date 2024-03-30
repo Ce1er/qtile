@@ -159,7 +159,14 @@ Color4 = "#4e1f4c" # bright purple
 Color5 = "#f4c4d1" # hot pink
 Color6 = "#89568d" # greyish purple
 Color7 = "#e17b66" # orange
-
+Color8 = "#000000"
+Color9 = "#000000"
+Color10 = "#000000"
+Color11 = "#000000"
+Color12 = "#000000"
+Color13 = "#000000"
+Color14 = "#000000"
+Color15 = "#000000"
 
 # --------------------------------------------------------
 # Setup Layout Theme
