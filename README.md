@@ -4,7 +4,6 @@ My qtile config
 WORK IN PROGRESS
 
 # TODO:
-* Change how rofi looks
 * Change colour scheme
 * Work on widgets in top bar
     * Volume
@@ -17,7 +16,7 @@ WORK IN PROGRESS
         * RAM
         * CPU
         * GPU
-* Rounded window corners
+* Terminal text colours
 
 credit:
 https://github.com/adi1090x/rofi/tree/master
