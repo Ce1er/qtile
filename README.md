@@ -18,3 +18,7 @@ WORK IN PROGRESS
         * CPU
         * GPU
 * Rounded window corners
+
+credit:
+https://github.com/adi1090x/rofi/tree/master
+https://gitlab.com/stephan-raabe/dotfiles
