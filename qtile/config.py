@@ -13,7 +13,7 @@ import json
 from libqtile import hook
 from libqtile import qtile
 from typing import List  
-from libqtile import bar, layout, widget
+from libqtile import bar, layout
 from libqtile.config import Click, Drag, Group, Key, Match, Screen, ScratchPad, DropDown, KeyChord
 from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
@@ -22,10 +22,12 @@ from libqtile.widget.image import Image
 from libqtile.dgroups import simple_key_binder
 from pathlib import Path
 from libqtile.log_utils import logger
+import iwlib # type: ignore
 
 from qtile_extras import widget # type: ignore
 from qtile_extras.widget.decorations import RectDecoration # type: ignore
 from qtile_extras.widget.decorations import PowerLineDecoration # type: ignore
+import qtile_extras.hook # type: ignore
 
 # --------------------------------------------------------
 # Your configuration
@@ -110,7 +112,7 @@ keys = [
 
     #System
     Key([mod], "q", lazy.window.kill(), desc="Kill focused window"),
-    Key([mod, "shift"], "r", lazy.reload_config(), desc="Reload the config"),
+    Key([mod], "r", lazy.reload_config(), desc="Reload the config"),
     # Key([mod, "control"], "q", lazy.spawn(home + "/dotfiles/qtile/scripts/powermenu.sh"), desc="Open Powermenu"),
 
     # Apps
@@ -119,8 +121,12 @@ keys = [
     Key([mod], "b", lazy.spawn(browser), desc="Launch browser"),
     Key([mod], "d", lazy.spawn(file_manager), desc="Launch file manager"),
 
-    Key([mod], "equal", lazy.spawn("brightnessctl -q s +20%")),
-    Key([mod], "minus", lazy.spawn("brightnessctl -q s 20%-"))        
+    Key([mod], "equal", lazy.spawn("brightnessctl -q s +20%"), desc="Brightness += 20%"),
+    Key([mod], "minus", lazy.spawn("brightnessctl -q s 20%-"), desc="Brightness -= 20%"), 
+
+    # VOLUME
+    Key([], "XF86AudioRaiseVolume", lazy.spawn("amixer -D pulse sset Master 5%+")),
+    Key([], "XF86AudioLowerVolume", lazy.spawn("amixer -D pulse sset Master 5%-")),
 ]
 
 # --------------------------------------------------------
@@ -155,7 +161,7 @@ Color4 = "#4e1f4c" # bright purple
 Color5 = "#f4c4d1" # hot pink
 Color6 = "#89568d" # greyish purple
 Color7 = "#e17b66" # orange
-Color8 = "#000000"
+Color8 = "#ffffff"
 Color9 = "#000000"
 Color10 = "#000000"
 Color11 = "#000000"
@@ -171,8 +177,8 @@ Color15 = "#000000"
 layout_theme = { 
     "border_width": 3,
     "margin": 15,
-    "border_focus": Color2,
-    "border_normal": "FFFFFF",
+    "border_focus": Color6,
+    "border_normal": Color8,
     "single_border_width": 3
 }
 
@@ -193,8 +199,8 @@ layouts = [
 # --------------------------------------------------------
 widget_defaults = dict(
     font="Fira Sans SemiBold",
-    fontsize=14,
-    padding=3
+    fontsize=11,
+    padding=5
 )
 extension_defaults = widget_defaults.copy()
 # --------------------------------------------------------
@@ -205,8 +211,8 @@ extension_defaults = widget_defaults.copy()
 decor_left = {
     "decorations": [
         PowerLineDecoration(
-            path="arrow_left"
-            # path="rounded_left"
+            # path="arrow_left"
+            path="rounded_left"
             # path="forward_slash"
             # path="back_slash"
         )
@@ -216,8 +222,8 @@ decor_left = {
 decor_right = {
     "decorations": [
         PowerLineDecoration(
-            path="arrow_right"
-            # path="rounded_right"
+            # path="arrow_right"
+            path="rounded_right"
             # path="forward_slash"
             # path="back_slash"
         )
@@ -260,26 +266,69 @@ widget_list = [
         background=Color10+".4",
         padding=10,        
         measure_mem='G',
-        format="{MemUsed:.0f}{mm} ({MemTotal:.0f}{mm})"
+        format="Memory: {MemPercent}%" # SWAP
     ),
     widget.Volume(
         **decor_right,
-        background=Color12+".4",
+        background=Color1+".4",
         padding=10, 
-        fmt='Vol: {}',
+        fmt='Volume: {}',
     ),
-    widget.DF( # Storage
+    widget.CPU(
         **decor_right,
         padding=10, 
         background=Color8+".4",        
         visible_on_warn=False,
-        format="{p} {uf}{m} ({r:.0f}%)"
+        format="CPU {freq_current}GHz {load_percent}%"
+    ),
+    widget.BrightnessControl(
+        **decor_right,
+        background=Color4+".4",
+        padding=10,
+        mode="bar"
+    ),
+    widget.ThermalZone(
+            **decor_right,
+            background=Color5+".4",
+            padding=10,
+            crit=70,
+            format="temp}°C"
     ),
     widget.Clock(
         **decor_right,
         background=Color4+".4",   
         padding=10,      
         format="%Y-%m-%d / %I:%M %p",
+    ),
+    widget.StatusNotifier(
+            **decor_right,
+            background=Color1+".4",
+            padding=10,
+            icon_size=16,
+            icon_theme=None,
+            mouse_callbacks={}
+    ),
+    widget.UPowerWidget(
+            **decor_right,
+            background=Color7+".4",
+            padding=10,
+            fill_charge="a6d608",
+            fill_critical="cc0000",
+            fill_low="aa00aa",
+            fill_normal="dbdbe0",
+            format="{percentage}% {tte} until empty"
+    ),
+    widget.WiFiIcon(
+            **decor_right,
+            background=Color5+".4",
+            padding=3,
+            active_color="ffffff",
+            inactive_colour="a5a5a5",
+            update_interval=1,
+            disconnected_colour="aa0000",
+            check_connection_interval=1,
+            interface="wlan0"
+
     ),
    ]
 
@@ -294,11 +343,11 @@ screens = [
     Screen(
         top=bar.Bar(
             widget_list,
-            30,
+            20, # Height
             padding=20,
-            opacity=0.7,
+            opacity=1,
             border_width=[0, 0, 0, 0],
-            margin=[0,0,0,0],
+            margin=[15,15,0,15],
             background="#000000.3"
         ),
     ),
@@ -319,7 +368,7 @@ mouse = [
 
 floating_layout = layout.Floating(
     border_width=3,
-    border_focus=Color2,
+    border_focus=Color4,
     border_normal="FFFFFF",
     float_rules=[
         # Run the utility of `xprop` to see the wm class and name of an X client.
@@ -371,7 +420,15 @@ wmname = "QTILE"
 # HOOK startup
 @hook.subscribe.startup_once
 def autostart():
-    autostartscript = "~/.config/qtile/autostart.sh"
-    home = os.path.expanduser(autostartscript)
-    subprocess.Popen([home])
+    lazy.spawn(terminal)
+    script = os.path.expanduser("~/.config/qtile/autostart.sh")
+    subprocess.Popen([script])
+    lazy.window.kill()
 
+@qtile_extras.hook.subscribe.up_battery_low
+def battery_low(battery_name):
+    send_notification(battery_name, "Battery is running low.")
+
+@qtile_extras.hook.subscribe.up_battery_critical
+def battery_critical(battery_name):
+    send_notification(battery_name, "Battery is critically low.")
