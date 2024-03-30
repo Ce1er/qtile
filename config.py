@@ -36,10 +36,6 @@ from qtile_extras.widget.decorations import PowerLineDecoration
 
 # Keyboard layout in autostart.sh
 
-# Show wlan status bar widget (set to False if wired network)
-show_wlan = True
-# show_wlan = False
-
 # Show bluetooth status bar widget
 show_bluetooth = True
 # show_bluetooth = False
@@ -294,13 +290,6 @@ widget_list = [
         background=Color2+".4",
         padding=10,
         mouse_callbacks={"Button1": lambda: qtile.cmd_spawn("blueman-manager")},
-    ),
-    widget.Wlan(
-        **decor_right,
-        background=Color2+".4",
-        padding=10,
-        format='{essid} {percent:2.0%}',
-        mouse_callbacks={"Button1": lambda: qtile.cmd_spawn(terminal "-e nmtui")},
     ),
     widget.Clock(
         **decor_right,
