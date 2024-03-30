@@ -8,10 +8,7 @@
 # Icons: https://fontawesome.com/search?o=r&m=free
 
 import os
-import re
-import socket
 import subprocess
-import psutil
 import json
 from libqtile import hook
 from libqtile import qtile
@@ -26,9 +23,9 @@ from libqtile.dgroups import simple_key_binder
 from pathlib import Path
 from libqtile.log_utils import logger
 
-from qtile_extras import widget
-from qtile_extras.widget.decorations import RectDecoration
-from qtile_extras.widget.decorations import PowerLineDecoration
+from qtile_extras import widget # type: ignore
+from qtile_extras.widget.decorations import RectDecoration # type: ignore
+from qtile_extras.widget.decorations import PowerLineDecoration # type: ignore
 
 # --------------------------------------------------------
 # Your configuration
@@ -195,14 +192,12 @@ layouts = [
 # --------------------------------------------------------
 # Setup Widget Defaults
 # --------------------------------------------------------
-
 widget_defaults = dict(
     font="Fira Sans SemiBold",
     fontsize=14,
     padding=3
 )
 extension_defaults = widget_defaults.copy()
-
 # --------------------------------------------------------
 # Decorations
 # https://qtile-extras.readthedocs.io/en/stable/manual/how_to/decorations.html
@@ -229,22 +224,11 @@ decor_right = {
         )
     ],
 }
-
 # --------------------------------------------------------
 # Widgets
 # --------------------------------------------------------
-
 widget_list = [
-    widget.TextBox(
-        **decor_left,
-        background=Color1+".4",
-        text='Apps',
-        foreground='ffffff',
-        desc='',
-        padding=10,
-        mouse_callbacks={"Button1": lambda: qtile.cmd_spawn("rofi -show drun")},
-    ),
-    widget.GroupBox(
+        widget.GroupBox(
         **decor_left,
         background="#ffffff.7",
         highlight_method='block',
@@ -292,12 +276,6 @@ widget_list = [
         visible_on_warn=False,
         format="{p} {uf}{m} ({r:.0f}%)"
     ),
-    widget.Bluetooth(
-        **decor_right,
-        background=Color2+".4",
-        padding=10,
-        mouse_callbacks={"Button1": lambda: qtile.cmd_spawn("blueman-manager")},
-    ),
     widget.Clock(
         **decor_right,
         background=Color4+".4",   
@@ -307,16 +285,12 @@ widget_list = [
 ]
 
 # Hide Modules if not on laptop
-if (show_wlan == False):
-    del widget_list[13:14]
 
 if (show_bluetooth == False):
     del widget_list[12:13]
-
 # --------------------------------------------------------
 # Screens
 # --------------------------------------------------------
-
 screens = [
     Screen(
         top=bar.Bar(
@@ -330,7 +304,6 @@ screens = [
         ),
     ),
 ]
-
 # --------------------------------------------------------
 # Drag floating layouts
 # --------------------------------------------------------
