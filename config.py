@@ -116,9 +116,8 @@ keys = [
     # Apps
     Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
     Key([mod, "control"], "Return", lazy.spawn(launcher), desc="Launch Rofi"),
-    # Key([mod], "b", lazy.spawn("sh " + home + "/dotfiles/.settings/browser.sh"), desc="Launch Browser"),
-    # Key([mod, "shift"], "w", lazy.spawn(home + "/dotfiles/qtile/scripts/wallpaper.sh"), desc="Update Theme and Wallpaper"),
-    # Key([mod, "control"], "w", lazy.spawn(home + "/dotfiles/qtile/scripts/wallpaper.sh select"), desc="Select Theme and Wallpaper"),
+    Key([mod], "b", lazy.spawn(browser), desc="Launch browser"),
+    Key([mod], "d", lazy.spawn(file_manager), desc="Launch file manager"),
 
     Key([], "XF86MonBrightnessUp", lazy.spawn("brightnessctl -q s +20%")),
     Key([], "XF86MonBrightnessDown", lazy.spawn("brightnessctl -q s 20%-"))        
@@ -269,7 +268,7 @@ widget_list = [
         padding=10, 
         fmt='Vol: {}',
     ),
-    widget.DF(
+    widget.DF( # Storage
         **decor_right,
         padding=10, 
         background=Color8+".4",        
@@ -282,7 +281,7 @@ widget_list = [
         padding=10,      
         format="%Y-%m-%d / %I:%M %p",
     ),
-]
+   ]
 
 # Hide Modules if not on laptop
 
@@ -375,3 +374,4 @@ def autostart():
     autostartscript = "~/.config/qtile/autostart.sh"
     home = os.path.expanduser(autostartscript)
     subprocess.Popen([home])
+
