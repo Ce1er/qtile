@@ -119,8 +119,8 @@ keys = [
     Key([mod], "b", lazy.spawn(browser), desc="Launch browser"),
     Key([mod], "d", lazy.spawn(file_manager), desc="Launch file manager"),
 
-    Key([], "XF86MonBrightnessUp", lazy.spawn("brightnessctl -q s +20%")),
-    Key([], "XF86MonBrightnessDown", lazy.spawn("brightnessctl -q s 20%-"))        
+    Key([mod], "equal", lazy.spawn("brightnessctl -q s +20%")),
+    Key([mod], "minus", lazy.spawn("brightnessctl -q s 20%-"))        
 ]
 
 # --------------------------------------------------------
@@ -140,7 +140,7 @@ groups.append(ScratchPad("scratchpad", [
 ]))
 
 keys.extend([
-    Key([mod], 'F12', lazy.group["scratchpad"].dropdown_toggle("terminal")),
+    Key([mod], 'F1', lazy.group["scratchpad"].dropdown_toggle("terminal")),
 ])
 
 # --------------------------------------------------------
