@@ -374,10 +374,8 @@ wmname = "QTILE"
 # HOOK startup
 @hook.subscribe.startup_once
 def autostart():
-    lazy.spawn(terminal)
     script = os.path.expanduser("~/.config/qtile/autostart.sh")
     subprocess.Popen([script])
-    lazy.window.kill()
 
 @qtile_extras.hook.subscribe.up_battery_low
 def battery_low(battery_name):
