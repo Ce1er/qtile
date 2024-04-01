@@ -161,25 +161,19 @@ Color4 = "#4e1f4c" # bright purple
 Color5 = "#f4c4d1" # hot pink
 Color6 = "#89568d" # greyish purple
 Color7 = "#e17b66" # orange
-Color8 = "#ffffff"
-Color9 = "#000000"
-Color10 = "#000000"
-Color11 = "#000000"
-Color12 = "#000000"
-Color13 = "#000000"
-Color14 = "#000000"
-Color15 = "#000000"
+Color8 = "#202020"
+Color9 = "#050505.45" # Bar background
 
 # --------------------------------------------------------
 # Setup Layout Theme
 # --------------------------------------------------------
 
 layout_theme = { 
-    "border_width": 3,
-    "margin": 15,
+    "border_width": 2,
+    "margin": 10,
     "border_focus": Color6,
-    "border_normal": Color8,
-    "single_border_width": 3
+    #"border_normal": Color8,
+    "single_border_width": 2
 }
 
 # --------------------------------------------------------
@@ -203,39 +197,13 @@ widget_defaults = dict(
     padding=5
 )
 extension_defaults = widget_defaults.copy()
-# --------------------------------------------------------
-# Decorations
-# https://qtile-extras.readthedocs.io/en/stable/manual/how_to/decorations.html
-# --------------------------------------------------------
 
-decor_left = {
-    "decorations": [
-        PowerLineDecoration(
-            # path="arrow_left"
-            path="rounded_left"
-            # path="forward_slash"
-            # path="back_slash"
-        )
-    ],
-}
-
-decor_right = {
-    "decorations": [
-        PowerLineDecoration(
-            # path="arrow_right"
-            path="rounded_right"
-            # path="forward_slash"
-            # path="back_slash"
-        )
-    ],
-}
 # --------------------------------------------------------
 # Widgets
 # --------------------------------------------------------
 widget_list = [
         widget.GroupBox(
-        **decor_left,
-        background="#ffffff.7",
+        background=Color9,
         highlight_method='block',
         highlight='ffffff',
         block_border='ffffff',
@@ -247,70 +215,59 @@ widget_list = [
         active='ffffff'
     ),
     widget.WindowName(
-        **decor_left,
         max_chars=50,
-        background=Color2+".4",
+        background=Color9,
         width=400,
         padding=10
     ),
-    widget.Spacer(),
     widget.Spacer(
-        length=30
+        background=Color9
     ),
     widget.TextBox(
-        **decor_right,
-        background="#000000.3"      
+        background=Color9      
     ),    
     widget.Memory(
-        **decor_right,
-        background=Color10+".4",
+        background=Color9,
         padding=10,        
         measure_mem='G',
         format="Memory: {MemPercent}%" # SWAP
     ),
+    widget.CPU(
+        padding=10, 
+        background=Color9,        
+        visible_on_warn=False,
+        format="CPU: {load_percent}%"
+    ),
     widget.Volume(
-        **decor_right,
-        background=Color1+".4",
+        background=Color9,
         padding=10, 
         fmt='Volume: {}',
     ),
-    widget.CPU(
-        **decor_right,
-        padding=10, 
-        background=Color8+".4",        
-        visible_on_warn=False,
-        format="CPU {freq_current}GHz {load_percent}%"
-    ),
     widget.BrightnessControl(
-        **decor_right,
-        background=Color4+".4",
+        background=Color9,
         padding=10,
         mode="bar"
     ),
     widget.ThermalZone(
-            **decor_right,
-            background=Color5+".4",
+            background=Color9,
             padding=10,
             crit=70,
             format="temp}°C"
     ),
     widget.Clock(
-        **decor_right,
-        background=Color4+".4",   
+        background=Color9,   
         padding=10,      
         format="%Y-%m-%d / %I:%M %p",
     ),
     widget.StatusNotifier(
-            **decor_right,
-            background=Color1+".4",
+            background=Color9,
             padding=10,
             icon_size=16,
             icon_theme=None,
             mouse_callbacks={}
     ),
     widget.UPowerWidget(
-            **decor_right,
-            background=Color7+".4",
+            background=Color9,
             padding=10,
             fill_charge="a6d608",
             fill_critical="cc0000",
@@ -319,9 +276,8 @@ widget_list = [
             format="{percentage}% {tte} until empty"
     ),
     widget.WiFiIcon(
-            **decor_right,
-            background=Color5+".4",
-            padding=3,
+            background=Color9,
+            padding=5,
             active_color="ffffff",
             inactive_colour="a5a5a5",
             update_interval=1,
@@ -330,12 +286,10 @@ widget_list = [
             interface="wlan0"
 
     ),
-   ]
+]
 
 # Hide Modules if not on laptop
 
-if (show_bluetooth == False):
-    del widget_list[12:13]
 # --------------------------------------------------------
 # Screens
 # --------------------------------------------------------
@@ -343,11 +297,11 @@ screens = [
     Screen(
         top=bar.Bar(
             widget_list,
-            20, # Height
+            30, # Height
             padding=20,
             opacity=1,
             border_width=[0, 0, 0, 0],
-            margin=[15,15,0,15],
+            margin=[0,0,0,0],
             background="#000000.3"
         ),
     ),
@@ -367,7 +321,7 @@ mouse = [
 # --------------------------------------------------------
 
 floating_layout = layout.Floating(
-    border_width=3,
+    border_width=4,
     border_focus=Color4,
     border_normal="FFFFFF",
     float_rules=[
