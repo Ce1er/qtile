@@ -28,6 +28,7 @@ from qtile_extras import widget # type: ignore
 from qtile_extras.widget.decorations import RectDecoration # type: ignore
 from qtile_extras.widget.decorations import PowerLineDecoration # type: ignore
 import qtile_extras.hook # type: ignore
+from qtile_extras.popup.templates.mpris2 import COMPACT_LAYOUT, DEFAULT_LAYOUT
 
 # --------------------------------------------------------
 # Your configuration
@@ -45,6 +46,21 @@ show_bluetooth = True
 
 # Get home path
 home = str(Path.home())
+volume = 0
+volume_increment = 5
+
+# --------------------------------------------------------
+# Custom Functions
+# --------------------------------------------------------
+
+@lazy.function
+def maximize_by_switching_layout(qtile):
+    current_layout_name = qtile.current_group.layout.name
+    if current_layout_name == 'columns':
+        qtile.current_group.layout = 'max'
+    elif current_layout_name == 'max':
+        qtile.current_group.layout = 'columns'
+
 
 # --------------------------------------------------------
 # Check for Desktop/Laptop
@@ -66,14 +82,13 @@ file_manager = "dolphin"
 # Keybindings
 # --------------------------------------------------------
 
-mod   = "mod1" # ALT KEY
+mod   = "mod4" # Windows key
 left  = "h"
 down  = "j"
 up    = "k"
 right = "l"
 
 keys = [
-
     # Focus
     Key([mod], left, lazy.layout.left(), desc="Move focus to left"),
     Key([mod], right, lazy.layout.right(), desc="Move focus to right"),
@@ -88,27 +103,29 @@ keys = [
     Key([mod, "shift"], up, lazy.layout.shuffle_up(), desc="Move window up"),
 
     # Swap
-    Key([mod, "shift"], left, lazy.layout.swap_left()),
-    Key([mod, "shift"], right, lazy.layout.swap_right()),
+    Key([mod, "shift", "control"], left, lazy.layout.swap_column_left()),
+    Key([mod, "shift", "control"], right, lazy.layout.swap_column_right()),
 
     # Key([mod], "Print", lazy.spawn(home + "/dotfiles/qtile/scripts/screenshot.sh")),
 
     # Size
-    Key([mod, "control"], down, lazy.layout.shrink(), desc="Grow window to the left"),
-    Key([mod, "control"], up, lazy.layout.grow(), desc="Grow window to the right"),
+    Key([mod, "control"], down, lazy.layout.grow_down(), desc="Grow window downwards"),
+    Key([mod, "control"], up, lazy.layout.grow_up(), desc="Grow window upwards"),
+    Key([mod, "control"], left, lazy.layout.grow_left()),
+    Key([mod, "control"], right, lazy.layout.grow_right()),
     Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
 
     # Floating
     Key([mod], "t", lazy.window.toggle_floating(), desc='Toggle floating'),
     
-    # Split
-    Key([mod, "shift"], "Return", lazy.layout.toggle_split(), desc="Toggle between split and unsplit sides of stack"),
+    # Mode
+    Key([mod], "s", lazy.layout.toggle_split(), desc="Swap between split or stacked for current column"),
 
     # Toggle Layouts
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
 
     # Fullscreen
-    Key([mod], "f", lazy.window.toggle_fullscreen()),
+    Key([mod], "f", maximize_by_switching_layout()),
 
     #System
     Key([mod], "q", lazy.window.kill(), desc="Kill focused window"),
@@ -125,17 +142,19 @@ keys = [
     Key([mod], "minus", lazy.spawn("brightnessctl -q s 20%-"), desc="Brightness -= 20%"), 
 
     # VOLUME
-    Key([], "XF86AudioRaiseVolume", lazy.spawn("amixer -D pulse sset Master 5%+")),
-    Key([], "XF86AudioLowerVolume", lazy.spawn("amixer -D pulse sset Master 5%-")),
+    Key([], "XF86AudioRaiseVolume", lazy.spawn("amixer sset Master 5%+")),
+    Key([], "XF86AudioLowerVolume", lazy.spawn("amixer sset Master 5%-")),
 ]
 
 # --------------------------------------------------------
 # Groups
 # --------------------------------------------------------
 
-groups = [Group(i, layout='monadtall') for i in "123456789"]
+groups = [Group(i, layout='columns') for i in "123456789"]
 
 dgroups_key_binder = simple_key_binder(mod)
+
+# Add keybind where mod+scroll wheel switches
 
 # --------------------------------------------------------
 # Scratchpads
@@ -149,6 +168,22 @@ keys.extend([
     Key([mod], 'F1', lazy.group["scratchpad"].dropdown_toggle("terminal")),
 ])
 
+groups.append(ScratchPad("scratchpad", [
+    DropDown("keepassxc", "keepassxc", x=0.3, y=0.1, width=0.4, height=0.4, on_focus_lost_hide=False),
+]))
+
+keys.extend([
+    Key([mod], 'F2', lazy.group["scratchpad"].dropdown_toggle("keepassxc"))
+])
+
+# Not functional
+groups.append(ScratchPad("scratchpad", [
+    DropDown("htop", "htop", x=0.3, y=0.1, width=0.4, height=0.4, on_focus_lost_hide=False),
+]))
+
+keys.extend([
+    Key([mod], 'F3', lazy.group["scratchpad"].dropdown_toggle("htop"))
+])
 # --------------------------------------------------------
 # Colors
 # --------------------------------------------------------
@@ -169,8 +204,8 @@ Color9 = "#050505.45" # Bar background
 # --------------------------------------------------------
 
 layout_theme = { 
-    "border_width": 2,
-    "margin": 10,
+    "border_width": 1,
+    "margin": 0,
     "border_focus": Color6,
     #"border_normal": Color8,
     "single_border_width": 2
@@ -181,11 +216,8 @@ layout_theme = {
 # --------------------------------------------------------
 
 layouts = [
-    layout.Max(**layout_theme),
-    layout.MonadTall(**layout_theme),
-    layout.MonadWide(**layout_theme),
-    layout.RatioTile(**layout_theme),
-    layout.Floating()
+    layout.Columns(**layout_theme,),
+    layout.Max(**layout_theme,),
 ]
 
 # --------------------------------------------------------
@@ -201,92 +233,81 @@ extension_defaults = widget_defaults.copy()
 # --------------------------------------------------------
 # Widgets
 # --------------------------------------------------------
+powerline = {
+    "decorations": [
+        RectDecoration(use_widget_background=True, padding_y=5, radius=0),
+        PowerLineDecoration(path="rounded_left", padding_y=5)
+    ]
+}
+
+decoration_group = {
+    "decorations": [
+        RectDecoration(color=Color2, radius=10, filled=True, padding_y=4, padding_x=10, group = False)
+    ],
+    "padding": 20,
+}
+
 widget_list = [
-        widget.GroupBox(
-        background=Color9,
-        highlight_method='block',
-        highlight='ffffff',
-        block_border='ffffff',
-        highlight_color=['ffffff','ffffff'],
-        block_highlight_text_color='000000',
-        foreground='ffffff',
-        rounded=False,
-        this_current_screen_border='ffffff',
-        active='ffffff'
+    widget.CurrentLayout(
+        **decoration_group
     ),
-    widget.WindowName(
-        max_chars=50,
-        background=Color9,
-        width=400,
-        padding=10
+    widget.GroupBox(
+        highlight_method='text',
+        this_current_screen_border=Color1,
+        hide_unused=True,
+        **decoration_group
     ),
-    widget.Spacer(
-        background=Color9
-    ),
-    widget.TextBox(
-        background=Color9      
-    ),    
     widget.Memory(
-        background=Color9,
-        padding=10,        
         measure_mem='G',
-        format="Memory: {MemPercent}%" # SWAP
+        format="Memory: {MemPercent}%",
+        **decoration_group
     ),
     widget.CPU(
-        padding=10, 
-        background=Color9,        
-        visible_on_warn=False,
-        format="CPU: {load_percent}%"
+        format="CPU: {load_percent}%",
+        **decoration_group
     ),
-    widget.Volume(
-        background=Color9,
-        padding=10, 
-        fmt='Volume: {}',
+    widget.NvidiaSensors(
+       format='GPU: {temp}°C',
+       **decoration_group
     ),
-    widget.BrightnessControl(
-        background=Color9,
-        padding=10,
-        mode="bar"
+    widget.Net(
+        **decoration_group
     ),
-    widget.ThermalZone(
-            background=Color9,
-            padding=10,
-            crit=70,
-            format="temp}°C"
+    widget.Spacer(),
+    widget.Systray(
+        icon_size=20,
+    ),
+    widget.DF(
+        warn_space=400, # Only show if available space is below 400G
+        partition='/home',
+        **decoration_group
+    ),
+    widget.DF(
+        warn_space=5,
+        partition='/',
+        **decoration_group
+    ),
+    widget.CheckUpdates(
+        distro='Arch_checkupdates',
+        update_interval=60, # Check every 60 seconds
+        display_format='Outdated Packages: {updates}',
+        execute='kitty --dump-commands yay',
+        **decoration_group
+    ),
+    widget.Wlan(
+        format='{essid} {percent:2.0%}',
+        **decoration_group
     ),
     widget.Clock(
-        background=Color9,   
-        padding=10,      
-        format="%Y-%m-%d / %I:%M %p",
+        format="%d/%m/%y %H:%M",
+        **decoration_group
     ),
-    widget.StatusNotifier(
-            background=Color9,
-            padding=10,
-            icon_size=16,
-            icon_theme=None,
-            mouse_callbacks={}
-    ),
-    widget.UPowerWidget(
-            background=Color9,
-            padding=10,
-            fill_charge="a6d608",
-            fill_critical="cc0000",
-            fill_low="aa00aa",
-            fill_normal="dbdbe0",
-            format="{percentage}% {tte} until empty"
-    ),
-    widget.WiFiIcon(
-            background=Color9,
-            padding=5,
-            active_color="ffffff",
-            inactive_colour="a5a5a5",
-            update_interval=1,
-            disconnected_colour="aa0000",
-            check_connection_interval=1,
-            interface="wlan0"
-
+    widget.Volume(
+        fmt="Volume: {}",
+        **decoration_group
     ),
 ]
+
 
 # Hide Modules if not on laptop
 
@@ -298,11 +319,11 @@ screens = [
         top=bar.Bar(
             widget_list,
             30, # Height
-            padding=20,
+            padding=0,
             opacity=1,
             border_width=[0, 0, 0, 0],
             margin=[0,0,0,0],
-            background="#000000.3"
+            background="#000000.0"
         ),
     ),
 ]
@@ -350,7 +371,7 @@ reconfigure_screens = True
 
 # If things like steam games want to auto-minimize themselves when losing
 # focus, should we respect this or not?
-auto_minimize = True
+auto_minimize = False
 
 # XXX: Gasp! We're lying here. In fact, nobody really uses or cares about this
 # string besides java UI toolkits; you can see several discussions on the
@@ -376,11 +397,3 @@ wmname = "QTILE"
 def autostart():
     script = os.path.expanduser("~/.config/qtile/autostart.sh")
     subprocess.Popen([script])
-
-@qtile_extras.hook.subscribe.up_battery_low
-def battery_low(battery_name):
-    send_notification(battery_name, "Battery is running low.")
-
-@qtile_extras.hook.subscribe.up_battery_critical
-def battery_critical(battery_name):
-    send_notification(battery_name, "Battery is critically low.")

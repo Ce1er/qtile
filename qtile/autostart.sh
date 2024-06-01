@@ -1,4 +1,5 @@
 #!/bin/bash
 setxkbmap gb
-wal -q -i ~/.config/qtile/default-wallpaper.jpg
+feh --bg-scale ~/.config/qtile/default-wallpaper.jpg
 picom
+dunst
