@@ -126,6 +126,7 @@ keys = [
 
     # Fullscreen
     Key([mod], "f", maximize_by_switching_layout()),
+    Key([mod, "control"], "f", lazy.window.toggle_fullscreen()),
 
     #System
     Key([mod], "q", lazy.window.kill(), desc="Kill focused window"),
